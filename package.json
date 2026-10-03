@@ -1,0 +1,41 @@
+{
+  "name": "opencode-chair-guard",
+  "version": "0.1.0",
+  "description": "Model-agnostic chair guard for OpenCode. The orchestrator plans and delegates; file edits are refused until a specialist is spawned.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "orchestration",
+    "agents"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timothy-cloudopsguy/opencode-chair-guard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/timothy-cloudopsguy/opencode-chair-guard/issues"
+  },
+  "homepage": "https://github.com/timothy-cloudopsguy/opencode-chair-guard#readme",
+  "files": [
+    "index.ts",
+    "guard.mjs",
+    "examples",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./index.ts",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "test": "node --test guard.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
