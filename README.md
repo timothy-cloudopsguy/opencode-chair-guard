@@ -10,9 +10,19 @@ It is meant to sit next to an orchestrator that already has specialists, such as
 
 OpenCode reads plugins when the process starts. Quit every running `opencode` session after you change the plugin list, then start it again. A session that is already open keeps the hooks it booted with.
 
+### From GitHub
+
+Add the pinned git spec to the `plugin` array in `~/.config/opencode/opencode.json`. Put it after your other plugins:
+
+```json
+"plugin": ["github:timothy-cloudopsguy/opencode-chair-guard#v0.1.0"]
+```
+
+Pin a tag rather than tracking the default branch. To upgrade, change the tag and restart OpenCode. If an old copy persists, clear OpenCode's plugin cache.
+
 ### From this checkout
 
-This is the install to use before the package is on npm.
+Use this local-checkout option for development or before the package is on npm.
 
 1. Clone the repo:
 
