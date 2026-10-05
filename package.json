@@ -1,6 +1,6 @@
 {
   "name": "opencode-chair-guard",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Model-agnostic chair guard for OpenCode. The orchestrator plans and delegates; file edits are refused until a specialist is spawned.",
   "type": "module",
   "license": "MIT",

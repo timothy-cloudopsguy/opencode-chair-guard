@@ -25,7 +25,7 @@ let announced = false
 function announce() {
   if (announced) return
   announced = true
-  console.error("[chair-guard] loaded")
+  console.error("\x1b[32m[chair-guard] loaded\x1b[0m")
 }
 
 type ChatMessageInput = {
