@@ -1,5 +1,5 @@
 import assert from "node:assert/strict"
-import { mkdtempSync, writeFileSync } from "node:fs"
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import test from "node:test"
@@ -15,6 +15,8 @@ import {
   fromV2ToolEvent,
   loadConfig,
   parseSoloEdits,
+  defaultConfigPath,
+  resolveConfigPath,
 } from "./guard.mjs"
 
 const wall = { kind: "wall" }
@@ -122,6 +124,15 @@ test("loadConfig uses wall mode when the file is missing or soloEdits is null", 
   assert.deepEqual(loadConfig(path), { kind: "wall" })
   writeFileSync(path, JSON.stringify({ soloEdits: 0 }))
   assert.deepEqual(loadConfig(path), { kind: "disabled" })
+})
+
+test("resolveConfigPath prefers an existing project config", () => {
+  const projectDirectory = mkdtempSync(join(tmpdir(), "chair-guard-project-"))
+  const projectPath = join(projectDirectory, ".opencode", "chair-guard.json")
+  assert.equal(resolveConfigPath(projectDirectory), defaultConfigPath())
+  mkdirSync(join(projectDirectory, ".opencode"))
+  writeFileSync(projectPath, JSON.stringify({ soloEdits: 0 }))
+  assert.equal(resolveConfigPath(projectDirectory), projectPath)
 })
 
 test("the session hook throws on a chair edit and allows it after task", () => {

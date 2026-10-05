@@ -5,10 +5,21 @@ import {
   createSessionGuard,
   fromV2ToolEvent,
   loadConfig,
+  resolveConfigPath,
 } from "./guard.mjs"
 
-const sessions = createSessionGuard(loadConfig())
-const guardTool = createCallGuard((sessionID, tool, args) => sessions.beforeTool(sessionID, tool, args))
+let sessions: ReturnType<typeof createSessionGuard> | undefined
+function ensureSessions(directory: string) {
+  if (!sessions) sessions = createSessionGuard(loadConfig(resolveConfigPath(directory)))
+  return sessions
+}
+
+function currentSessions() {
+  if (!sessions) throw new Error("chair-guard session guard is not initialized")
+  return sessions
+}
+
+const guardTool = createCallGuard((sessionID, tool, args) => currentSessions().beforeTool(sessionID, tool, args))
 
 let announced = false
 function announce() {
@@ -47,6 +58,7 @@ type V2HookRegistration = {
 }
 
 type V2Context = {
+  directory?: string
   tool?: {
     hook?: (name: string, handler: (event: unknown) => Promise<void>) => Promise<V2HookRegistration>
   }
@@ -55,23 +67,30 @@ type V2Context = {
   }
 }
 
-const plugin = async () => {
+type V1Context = {
+  directory?: string
+  worktree?: string
+}
+
+const plugin = async (ctx: V1Context = {}) => {
   announce()
+  ensureSessions(ctx.directory ?? ctx.worktree ?? process.cwd())
   return {
     "chat.message": async (input: ChatMessageInput, output: ChatMessageOutput) => {
-      sessions.observeAgent(input.sessionID ?? "", input.agent ?? output?.message?.agent)
+      currentSessions().observeAgent(input.sessionID ?? "", input.agent ?? output?.message?.agent)
     },
     "tool.execute.before": async (input: ToolBeforeInput, output: ToolBeforeOutput) => {
       guardTool(input.sessionID ?? "", input.callID ?? "", input.tool ?? "", output?.args)
     },
     "experimental.chat.messages.transform": async (_input: unknown, output: MessagesOutput) => {
-      appendChairReminder(output?.messages, (sessionID) => sessions.agentFor(sessionID))
+      appendChairReminder(output?.messages, (sessionID) => currentSessions().agentFor(sessionID))
     },
   }
 }
 
 async function setup(ctx: V2Context) {
   announce()
+  ensureSessions(ctx?.directory ?? process.cwd())
   if (!ctx || typeof ctx.tool?.hook !== "function") return async () => {}
   const disposers: Array<() => void> = []
   const remember = (registration: V2HookRegistration | undefined) => {
@@ -95,9 +114,9 @@ async function setup(ctx: V2Context) {
           const record =
             event && typeof event === "object" ? (event as { sessionID?: string; agent?: string }) : {}
           if (typeof record.sessionID === "string" && typeof record.agent === "string") {
-            sessions.observeAgent(record.sessionID, record.agent)
+            currentSessions().observeAgent(record.sessionID, record.agent)
           }
-          applyV2Reminder(event, (sessionID) => sessions.agentFor(sessionID))
+          applyV2Reminder(event, (sessionID) => currentSessions().agentFor(sessionID))
         }),
       )
     } catch (err) {

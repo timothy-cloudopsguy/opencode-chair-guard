@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs"
+import { existsSync, readFileSync } from "node:fs"
 import { homedir } from "node:os"
 import { join } from "node:path"
 
@@ -15,6 +15,15 @@ const DENY_MESSAGE =
 
 export function defaultConfigPath() {
   return join(homedir(), ".config", "opencode", "chair-guard.json")
+}
+
+export function projectConfigPath(directory) {
+  return join(directory, ".opencode", "chair-guard.json")
+}
+
+export function resolveConfigPath(directory) {
+  const projectPath = projectConfigPath(directory)
+  return existsSync(projectPath) ? projectPath : defaultConfigPath()
 }
 
 export function emptyState(agent) {

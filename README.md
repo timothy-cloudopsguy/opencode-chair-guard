@@ -68,6 +68,9 @@ Copy the example config if you do not already have one:
 cp examples/chair-guard.json ~/.config/opencode/chair-guard.json
 ```
 
+The project file `.opencode/chair-guard.json` in the directory where OpenCode is
+launched takes precedence over the global config. The two files are not merged.
+
 `soloEdits` controls the gate:
 
 | Value | Behavior |
